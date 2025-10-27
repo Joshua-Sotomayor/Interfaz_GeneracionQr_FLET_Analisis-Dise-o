@@ -662,10 +662,17 @@ def main(page: ft.Page):
     # ============================================
     main_content = ft.Container(
         padding=ft.padding.symmetric(vertical=32, horizontal=16),
-        gradient=ft.LinearGradient(
-            begin=ft.alignment.top_center,
-            end=ft.alignment.bottom_center,
-            colors=["#ffffff", "#E6F7ED"],
+        gradient=ft.RadialGradient(
+            center=ft.alignment.center,
+            radius=0.5,  # Ajusta esto si quieres el difuminado más grande o pequeño
+            colors=[
+                "#F2FFF7",  # Tu tono verde (Color del centro)
+                "#ffffff"   # Blanco (Color de los bordes)
+            ],
+            stops=[
+                0.3,  # El 30% central será verde sólido
+                1.0   # El 70% restante será el difuminado hacia blanco
+            ]
         ),
         expand=True,
         content=ft.Column(
