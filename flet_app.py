@@ -656,7 +656,6 @@ def main(page: ft.Page):
     expand=True,
     spacing=40,
     )
-
     
     # ============================================
     # MAIN CONTENT
@@ -671,6 +670,7 @@ def main(page: ft.Page):
         expand=True,
         content=ft.Column(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
             spacing=32,
             controls=[
                 form_card,
@@ -687,6 +687,7 @@ def main(page: ft.Page):
         ft.Column(
             spacing=0,
             expand=True,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 header,
                 main_content,
