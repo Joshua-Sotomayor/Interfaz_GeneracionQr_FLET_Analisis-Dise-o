@@ -381,20 +381,12 @@ def main(page: ft.Page):
     
     def show_snackbar(message, bgcolor="#38A169"):
         """Muestra mensaje de notificación"""
--        page.snack_bar = ft.SnackBar(
--            content=ft.Text(message, color="#ffffff"),
--            bgcolor=bgcolor,
--        )
--        page.snack_bar.open = True
--        page.update()
-+        # Usar el método apropiado de Flet en vez de asignar page.snack_bar
-+        sb = ft.SnackBar(
-+            content=ft.Text(message, color="#ffffff"),
-+            bgcolor=bgcolor,
-+        )
-+        page.show_snack_bar(sb)
-+        # page.update() no es estrictamente necesario aquí, pero se puede dejar si hay otros cambios de UI
-+        page.update()
+        page.snack_bar = ft.SnackBar(
+            content=ft.Text(message, color="#ffffff"),
+            bgcolor=bgcolor,
+        )
+        page.snack_bar.open = True
+        page.update()
     
     def on_generate_qr(e):
         """Maneja la generación del código QR"""
@@ -577,7 +569,7 @@ def main(page: ft.Page):
             alignment=ft.MainAxisAlignment.CENTER,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
-                ft.Icon(ft.icons.INVENTORY_2, size=32, color="#22543D"),
+                ft.Icon(ft.Icons.INVENTORY_2, size=32, color="#22543D"),
                 ft.Column(
                     spacing=4,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
