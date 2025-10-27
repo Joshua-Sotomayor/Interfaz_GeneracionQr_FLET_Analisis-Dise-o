@@ -664,10 +664,10 @@ def main(page: ft.Page):
         padding=ft.padding.symmetric(vertical=32, horizontal=16),
         gradient=ft.RadialGradient(
             center=ft.alignment.center,
-            radius=0.5,  # Ajusta esto si quieres el difuminado más grande o pequeño
+            radius=0.5,  # Ajusta difuminado
             colors=[
-                "#F2FFF7",  # Tu tono verde (Color del centro)
-                "#ffffff"   # Blanco (Color de los bordes)
+                "#F2FFF7",  # (Color del centro)
+                "#ffffff"   # (Color de los bordes)
             ],
             stops=[
                 0.3,  # El 30% central será verde sólido
