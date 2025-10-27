@@ -124,7 +124,12 @@ def main(page: ft.Page):
     # STATE VARIABLES
     # ============================================
     current_qr_data = {}
-    
+    CARD_MAX_WIDTH = 700
+    CARD_MIN_WIDTH = 360
+    CARD_PADDING = 24
+    CARD_RADIUS = 16
+    CARD_ELEVATION = 4
+    CARD_BG = "#FFFFFF"
     # ============================================
     # FORM FIELDS (with refs for access)
     # ============================================
@@ -206,24 +211,29 @@ def main(page: ft.Page):
     )
     
     qr_info_container = ft.Container(
-        visible=False,
+        ###################  INLCUSION DE LO RESPONSIVE   #########################
+        
+        ###########################################
+        visible=False, alignment=ft.alignment.center,
+        width=CARD_MAX_WIDTH,
+        bgcolor="transparent",
         content=ft.Card(
-            elevation=4,
+            elevation=CARD_ELEVATION,
             content=ft.Container(
                 padding=24,
                 border_radius=16,
                 bgcolor="#ffffff",
                 content=ft.Column(
-                    spacing=24,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=24,
                     controls=[
-                        # Title
-                        ft.Text(
-                            "Información del Lote",
-                            size=18,
-                            weight=ft.FontWeight.W_500,
-                            color="#22543D",
-                        ),
+                    ft.Text(
+                        "Información del Lote",
+                        size=18,
+                        weight=ft.FontWeight.W_500,
+                        color="#22543D",
+                        text_align=ft.TextAlign.CENTER,
+                    ),
                         # Info container
                         ft.Container(
                             padding=16,
@@ -329,34 +339,37 @@ def main(page: ft.Page):
     
     history_container = ft.Container(
         visible=False,
+        alignment=ft.alignment.center,
+        width=CARD_MAX_WIDTH,
+        bgcolor="transparent",
         content=ft.Card(
-            elevation=4,
+            elevation=CARD_ELEVATION,
             content=ft.Container(
-                padding=24,
-                border_radius=16,
-                bgcolor="#ffffff",
-                content=ft.Column(
-                    spacing=16,
-                    controls=[
-                        ft.Text(
-                            "Historial de Registros",
-                            size=18,
-                            weight=ft.FontWeight.W_500,
-                            color="#22543D",
-                        ),
-                        ft.Container(
-                            height=300,
-                            content=ft.Column(
-                                scroll=ft.ScrollMode.AUTO,
-                                controls=[history_table],
+            padding=CARD_PADDING,
+            border_radius=CARD_RADIUS,
+            bgcolor=CARD_BG,
+            content=ft.Column(
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=16,
+                controls=[
+                    ft.Text(
+                        "Historial de Registros",
+                        size=18,
+                        weight=ft.FontWeight.W_500,
+                        color="#22543D",
+                    ),
+                    ft.Container(
+                        height=300,
+                        content=ft.Column(
+                            scroll=ft.ScrollMode.AUTO,
+                            controls=[history_table],
                             ),
                         ),
                     ],
                 ),
             ),
         ),
-    )
-    
+    )    
     # ============================================
     # EVENT HANDLERS
     # ============================================
@@ -595,17 +608,55 @@ def main(page: ft.Page):
     # FOOTER
     # ============================================
     footer = ft.Container(
-        bgcolor="#C6F6D5",
-        border=ft.border.only(top=ft.BorderSide(1, "#38A169")),
-        padding=24,
-        margin=ft.margin.only(top=64),
-        content=ft.Text(
-            "Prototipo de sistema de trazabilidad para PYMEs – Desarrollado con Flet (Python)",
-            size=12,
-            color="#22543D",
-            text_align=ft.TextAlign.CENTER,
-        ),
+    bgcolor="#C6F6D5",
+    border=ft.border.only(top=ft.BorderSide(1, "#38A169")),
+    padding=ft.padding.symmetric(vertical=20, horizontal=10),
+    margin=ft.margin.only(top=40),
+    content=ft.ResponsiveRow(
+        [
+            ft.Column(
+                [
+                    ft.Text(
+                        "Prototipo de sistema de trazabilidad para PYMEs",
+                        size=12,
+                        color="#22543D",
+                        text_align=ft.TextAlign.CENTER,
+                        expand=True,
+                    ),
+                    ft.Text(
+                        "Desarrollado con ❤️ en Flet (Python)",
+                        size=11,
+                        italic=True,
+                        color="#276749",
+                        text_align=ft.TextAlign.CENTER,
+                        expand=True,
+                    ),
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=5,
+                col={"xs": 12, "sm": 12, "md": 12, "lg": 12},
+            ),
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+    ),
+    alignment=ft.alignment.center,
     )
+
+    layout = ft.Column(
+    [
+        form_card,
+        qr_info_container,
+        history_container,
+        footer,  # 👈 si lo estás usando
+    ],
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    alignment=ft.MainAxisAlignment.CENTER,
+    expand=True,
+    spacing=40,
+    )
+
     
     # ============================================
     # MAIN CONTENT
