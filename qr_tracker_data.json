@@ -1,0 +1,19 @@
+{
+  "products": [
+    "curcuma"
+  ],
+  "suppliers": [
+    "agro sur "
+  ],
+  "history": [
+    {
+      "id": "1761679252",
+      "operatorName": "joshua Amaru",
+      "operatorCode": "1234",
+      "productType": "curcuma",
+      "quantity": "1000",
+      "supplier": "agro sur ",
+      "date": "2025-10-28 13:20:52"
+    }
+  ]
+}
