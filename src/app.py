@@ -1,13 +1,9 @@
-# src/app.py
 import flet as ft
 from datetime import datetime
 import base64
 
-# Importaciones locales
-from .storage_manager import StorageManager
+from .database_manager import DatabaseManager
 from .utils import generate_qr_image
-
-# Importa las NUEVAS funciones creadoras de UI
 from .components.header import create_header
 from .components.footer import create_footer
 from .components.form_card import create_form_card
@@ -18,12 +14,13 @@ class LoteTrackerApp:
     
     def __init__(self, page: ft.Page):
         self.page = page
-        self.storage = StorageManager()
+        self.storage = DatabaseManager() 
         self.current_qr_data = {}
         self.current_qr_base64 = ""
 
-        # --- 1. Definir TODOS los controles aquí (como en tu original) ---
+        # --- 1. Definir TODOS los controles aquí ---
         
+        # (El código de los controles no cambia...)
         # Controles del Formulario
         self.operator_name_field = ft.TextField(
             label="Nombre del operador *", hint_text="Ej: Juan Pérez",
@@ -61,13 +58,13 @@ class LoteTrackerApp:
         )
         self.generate_button = ft.ElevatedButton(
             "Generar código QR",
-            on_click=self.on_generate_qr, # Asigna el método de la clase
+            on_click=self.on_generate_qr, 
             style=ft.ButtonStyle(color="#ffffff", bgcolor="#38A169"),
             height=40, expand=True,
         )
         self.new_code_button = ft.ElevatedButton(
             "Nuevo código",
-            on_click=self.on_new_code, # Asigna el método de la clase
+            on_click=self.on_new_code,
             visible=False,
             style=ft.ButtonStyle(
                 color="#22543D", bgcolor="#ffffff",
@@ -101,7 +98,6 @@ class LoteTrackerApp:
         )
 
         # --- 2. Definir las variables de layout ---
-        # Estas variables AHORA son atributos de la clase
         
         self.header = create_header()
         self.footer = create_footer()
@@ -125,6 +121,21 @@ class LoteTrackerApp:
     def build_layout(self):
         """Construye y añade el layout principal a la página"""
         
+        # 👇 CORRECCIÓN AQUÍ
+        if self.storage.db is None:
+            self.page.add(ft.Column(
+                [
+                    ft.Text("❌ Error de Conexión a la Base de Datos", size=20, color="red"),
+                    ft.Text("Por favor, revisa tu archivo .env y asegúrate de que MongoDB esté corriendo."),
+                    ft.Text(f"URI Intentada: {self.storage.mongo_uri}")
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                expand=True
+            ))
+            return
+
+        # Si la conexión es exitosa, construye la UI normal
         self.main_content = ft.Container(
             padding=ft.padding.symmetric(vertical=32, horizontal=16),
             gradient=ft.RadialGradient(
@@ -146,7 +157,6 @@ class LoteTrackerApp:
             ),
         )
         
-        # Añade todo a la página
         self.page.add(
             ft.Column(
                 spacing=0,
@@ -160,7 +170,6 @@ class LoteTrackerApp:
             )
         )
         
-        # Carga inicial del historial (como en tu original)
         self.update_history_table()
         if len(self.storage.get_history()) > 0:
             self.history_container.visible = True
@@ -168,10 +177,9 @@ class LoteTrackerApp:
         self.page.update()
 
     # --- 3. Lógica de la Aplicación (Callbacks) ---
-    # Todos tus métodos de eventos van aquí
+    # (El resto de la lógica no cambia...)
     
     def validate_fields(self):
-        """Valida que los campos requeridos estén completos"""
         if not self.operator_name_field.value:
             self.show_snackbar("⚠️ Por favor, ingrese el nombre del operador", "#d4183d")
             return False
@@ -182,7 +190,7 @@ class LoteTrackerApp:
             self.show_snackbar("⚠️ Por favor, ingrese el tipo de producto", "#d4183d")
             return False
         if not self.quantity_field.value:
-            self.show_snackbar("⚠️ Por favor, ingrese la cantidad", "#d4183d")
+            self.show_snackbar("⚠️ Por favor, ingrese la cantidad", "#d44183d")
             return False
         if not self.supplier_field.value:
             self.show_snackbar("⚠️ Por favor, ingrese el proveedor", "#d4183d")
@@ -190,7 +198,6 @@ class LoteTrackerApp:
         return True
 
     def show_snackbar(self, message, bgcolor="#38A169"):
-        """Muestra mensaje de notificación"""
         self.page.snack_bar = ft.SnackBar(
             content=ft.Text(message, color="#ffffff"),
             bgcolor=bgcolor,
@@ -199,7 +206,6 @@ class LoteTrackerApp:
         self.page.update()
 
     def on_generate_qr(self, e):
-        """Maneja la generación del código QR"""
         if not self.validate_fields():
             return
         
@@ -216,18 +222,19 @@ class LoteTrackerApp:
         
         self.storage.add_product(qr_data["productType"])
         self.storage.add_supplier(qr_data["supplier"])
-        self.storage.add_history_record({
-            "id": str(int(datetime.now().timestamp())),
+        record_to_db = {
+            "id": str(int(datetime.now().timestamp())), 
             **qr_data
-        })
+        }
+        self.storage.add_history_record(record_to_db)
         
         img_base64 = generate_qr_image(qr_data)
         self.qr_image.src_base64 = img_base64
-        self.current_qr_base64 = img_base64 # Guarda para descarga
-        self.current_qr_data = qr_data # Guarda para descarga
+        self.current_qr_base64 = img_base64
+        self.current_qr_data = qr_data
         
         self.update_qr_display(qr_data)
-        self.update_history_table()
+        self.update_history_table() 
         
         self.qr_info_container.visible = True
         self.history_container.visible = True
@@ -240,7 +247,6 @@ class LoteTrackerApp:
         self.page.update()
 
     def update_qr_display(self, data):
-        """Actualiza la información mostrada del QR"""
         self.operator_name_display.value = data["operatorName"]
         self.operator_code_display.value = data["operatorCode"]
         self.product_display.value = data["productType"]
@@ -249,7 +255,6 @@ class LoteTrackerApp:
         self.date_display.value = data["date"]
 
     def update_history_table(self):
-        """Actualiza la tabla de historial"""
         history = self.storage.get_history()
         self.history_table.rows.clear()
         
@@ -267,7 +272,6 @@ class LoteTrackerApp:
             )
 
     def on_new_code(self, e):
-        """Limpia el formulario para un nuevo código"""
         self.operator_name_field.value = ""
         self.operator_code_field.value = ""
         self.product_type_field.value = ""
@@ -282,7 +286,6 @@ class LoteTrackerApp:
         self.page.update()
 
     def download_qr(self, e):
-        """Descarga el código QR como PNG"""
         if self.current_qr_data:
             filename = f"QR-{self.current_qr_data['productType']}-{int(datetime.now().timestamp())}.png"
             
@@ -293,3 +296,4 @@ class LoteTrackerApp:
                 self.show_snackbar(f"✅ Código QR guardado como {filename}")
             except Exception as ex:
                 self.show_snackbar(f"Error al guardar: {ex}", "#d4183d")
+
