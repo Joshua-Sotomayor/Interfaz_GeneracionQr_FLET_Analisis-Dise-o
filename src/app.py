@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # Importamos el DatabaseManager
-from src.database_manager import DatabaseManager 
+from src.database_manager import DatabaseManager
 from src.utils import generate_qr_image
 
 # Importamos los componentes
@@ -16,12 +16,12 @@ from src.components.qr_display import create_qr_display_card
 from src.components.history_table import create_history_table_card
 
 class GeneratorPage:
-    
+
     def __init__(self, page: ft.Page, db: DatabaseManager):
-        load_dotenv() 
+        load_dotenv()
         self.page = page
         self.db = db
-        self.base_url = os.getenv("BASE_URL") 
+        self.base_url = os.getenv("BASE_URL")
         self.current_qr_data = {}
         self.current_qr_base64 = ""
 
@@ -55,7 +55,7 @@ class GeneratorPage:
         self.history_container = create_history_table_card(self.history_table)
 
     # --- 3. Lógica de la Aplicación ---
-    
+
     def validate_fields(self):
         if not self.operator_name_field.value:
             self.show_snackbar("⚠️ Por favor, ingrese el nombre del operador", "#d4183d")
@@ -79,17 +79,20 @@ class GeneratorPage:
         self.page.snack_bar.open = True
         self.page.update()
 
+    # 👇 MÉTODO MODIFICADO PARA QR HÍBRIDO 👇
     def on_generate_qr(self, e):
+        """Maneja la generación del código QR"""
         if not self.validate_fields():
             return
-            
+
         if not self.base_url:
             self.show_snackbar("❌ Error: 'BASE_URL' no está configurada en tu archivo .env", "#d4183d")
             self.show_snackbar("Añade la URL de tu servidor (ej. http://192.168.1.7:8550) a .env", "#d4183d")
             return
-        
+
         date_value = self.date_field.value if self.date_field.value else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+
+        # 1. Obtenemos los datos del formulario
         qr_data = {
             "operatorName": self.operator_name_field.value,
             "operatorCode": self.operator_code_field.value,
@@ -98,31 +101,50 @@ class GeneratorPage:
             "supplier": self.supplier_field.value,
             "date": date_value,
         }
-        
+
+        # 2. Guardamos en la base de datos
         self.db.add_product(qr_data["productType"])
         self.db.add_supplier(qr_data["supplier"])
         insert_result = self.db.add_history_record(qr_data)
         nuevo_lote_id = insert_result.inserted_id
-        
+
+        # 3. Creamos la URL en vivo
         qr_url = f"{self.base_url}/lote/{nuevo_lote_id}"
-        
-        img_base64 = generate_qr_image(qr_url)
-        
+
+        # 4. Creamos el texto de lectura offline + URL
+        qr_payload_string = f"""--- LoteTracker ---
+Producto: {qr_data['productType']}
+Cantidad: {qr_data['quantity']}
+Proveedor: {qr_data['supplier']}
+Fecha: {qr_data['date']}
+Operador: {qr_data['operatorName']}
+Código Op: {qr_data['operatorCode']}
+
+-------------------
+Ver Dashboard en Vivo:
+{qr_url}
+"""
+
+        # 5. Generamos el QR usando el nuevo texto
+        img_base64 = generate_qr_image(qr_payload_string) # <-- Le pasamos el texto completo
+
+        # 6. El resto de la lógica es la misma
         self.qr_image.src_base64 = img_base64
         self.current_qr_base64 = img_base64
         self.current_qr_data = qr_data
-        
+
         self.update_qr_display(qr_data)
         self.update_history_table()
-        
+
         self.qr_info_container.visible = True
         self.history_container.visible = True
-        
+
         self.generate_button.text = "Generar nuevo código QR"
         self.new_code_button.visible = True
-        
-        self.show_snackbar(f"✅ Código generado con URL: {qr_url}")
+
+        self.show_snackbar("✅ Código QR Híbrido (Offline/Online) generado") # Mensaje actualizado
         self.page.update()
+    # 👆 FIN DEL MÉTODO MODIFICADO 👆
 
     def update_qr_display(self, data):
         self.operator_name_display.value = data["operatorName"]
@@ -170,15 +192,15 @@ class GeneratorPage:
                 self.show_snackbar(f"Error al guardar: {ex}", "#d4183d")
 
 
-# --- Esta es la nueva función que 'main.py' llamará ---
+# --- Esta función NO CAMBIA ---
 def create_generator_view(page: ft.Page, db: DatabaseManager):
     """Crea y retorna la ft.View para la página principal del generador"""
-    
+
     generator_logic = GeneratorPage(page, db)
     generator_logic.update_history_table()
     if len(db.get_history()) > 0:
         generator_logic.history_container.visible = True
-        
+
     if not generator_logic.base_url:
         warning_text = ft.Container(
             content=ft.Text(
@@ -189,25 +211,24 @@ def create_generator_view(page: ft.Page, db: DatabaseManager):
             border=ft.border.all(1, ft.colors.ORANGE_300)
         )
         generator_logic.form_card.content.content.controls.insert(0, warning_text)
-    
+
+    # El contenedor usa tu gradiente radial
     main_content = ft.Container(
         padding=ft.padding.symmetric(vertical=32, horizontal=16),
-        # Tu gradiente radial preferido
         gradient=ft.RadialGradient(
             center=ft.alignment.center,
-            radius=1,  # Más grande => difuminado hacia los bordes
+            radius=1,
             colors=[
-                "#E6F4EA",  # Verde muy claro
-                "#F9FCFA",  # Casi blanco (zona intermedia)
-                "#F3F3F3"   # Blanco total en el borde
+                "#E6F4EA",
+                "#F9FCFA",
+                "#F3F3F3"
             ],
-            stops=[0.0, 0.6, 1.0]  # Difuminado gradual
+            stops=[0.0, 0.6, 1.0]
         ),
-        expand=True, # Esto empuja el footer hacia abajo
+        expand=True,
         content=ft.Column(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            alignment=ft.MainAxisAlignment.CENTER, # Centra las tarjetas verticalmente
-            # Sin scroll aquí
+            alignment=ft.MainAxisAlignment.CENTER,
             spacing=32,
             controls=[
                 generator_logic.form_card,
@@ -216,11 +237,11 @@ def create_generator_view(page: ft.Page, db: DatabaseManager):
             ],
         ),
     )
-    
+
     return ft.View(
         route="/",
         padding=0,
-        scroll=ft.ScrollMode.AUTO, # El scroll va en la Vista
+        scroll=ft.ScrollMode.AUTO,
         controls=[
             ft.Column(
                 expand=True,
@@ -228,7 +249,7 @@ def create_generator_view(page: ft.Page, db: DatabaseManager):
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
                     generator_logic.header,
-                    main_content, # Este ya tiene expand=True
+                    main_content,
                     generator_logic.footer,
                 ]
             )

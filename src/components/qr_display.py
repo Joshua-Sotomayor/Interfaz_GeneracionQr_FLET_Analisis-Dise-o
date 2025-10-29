@@ -12,7 +12,7 @@ def create_qr_display_card(
     download_button_click_handler
 ):
     """Crea y retorna la Card de display del QR con los controles dados"""
-    
+
     def _build_info_row(label, text_control):
         """Helper anidado para crear filas de información"""
         return ft.Row(
@@ -24,8 +24,7 @@ def create_qr_display_card(
         )
 
     return ft.Container(
-        # La visibilidad se controlará desde app.py cambiando la propiedad 'visible'
-        visible=False, 
+        visible=False,
         alignment=ft.alignment.center,
         width=700,
         bgcolor="transparent",
@@ -83,9 +82,10 @@ def create_qr_display_card(
                             ),
                             width=300,
                         ),
-                        # Helper text
+
+                        # 👇 TEXTO DE AYUDA ACTUALIZADO 👇
                         ft.Text(
-                            "El código QR contiene: Producto, Cantidad, Proveedor y Fecha",
+                            "El QR contiene datos (offline) y un enlace al dashboard (online)",
                             size=12,
                             color="#717182",
                             text_align=ft.TextAlign.CENTER,
