@@ -1,17 +1,9 @@
-# src/utils.py
 import qrcode
-import json
 import base64
 from io import BytesIO
 
-def generate_qr_image(data):
-    """Genera imagen QR en formato base64"""
-    qr_data = json.dumps({
-        "producto": data["productType"],
-        "cantidad": data["quantity"],
-        "proveedor": data["supplier"],
-        "fecha": data["date"]
-    }, ensure_ascii=False)
+def generate_qr_image(url_data):
+    """Genera imagen QR en formato base64 a partir de una URL"""
     
     qr = qrcode.QRCode(
         version=1,
@@ -19,7 +11,8 @@ def generate_qr_image(data):
         box_size=10,
         border=4,
     )
-    qr.add_data(qr_data)
+    # ⭐️ CAMBIO: Añadimos la URL como dato
+    qr.add_data(url_data)
     qr.make(fit=True)
     
     img = qr.make_image(fill_color="black", back_color="white")
