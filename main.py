@@ -16,8 +16,8 @@ def main(page: ft.Page):
     if db.db is None:
         page.add(ft.Column(
             [
-                ft.Text("❌ Error de Conexión a la Base de Datos", size=20, color="red"),
-                ft.Text("Por favor, revisa tu archivo .env y asegúrate de que MongoDB esté corriendo."),
+                ft.Text("Error de Conexión a la Base de Datos", size=20, color="red"),
+                ft.Text("Chatel, revisa tu archivo .env y asegúrate de que MongoDB esté corriendo."),
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             alignment=ft.MainAxisAlignment.CENTER,
@@ -63,4 +63,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main, view=ft.WEB_BROWSER)
+    ft.app(target=main, view=ft.WEB_BROWSER, port=8550)
