@@ -117,3 +117,36 @@ class DatabaseManager:
         
         records_cursor = self.registros.find().sort("_id", -1).limit(10)
         return list(records_cursor)
+    
+    def get_products(self):
+        """Obtiene lista de nombres de productos únicos"""
+        if self.db is None: return []
+        
+        products = self.productos.find({}, {"nombre": 1, "_id": 0})
+        return [p["nombre"] for p in products]
+    
+    def get_suppliers(self):
+        """Obtiene lista de nombres de proveedores únicos"""
+        if self.db is None: return []
+        
+        suppliers = self.proveedores.find({}, {"nombre": 1, "_id": 0})
+        return [s["nombre"] for s in suppliers]
+    
+    def get_operators(self):
+        """Obtiene lista de operadores únicos con sus códigos"""
+        if self.db is None: return {}
+        
+        # Obtener operadores únicos del historial
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$operatorName",
+                    "codigo": {"$first": "$operatorCode"}
+                }
+            },
+            {"$sort": {"_id": 1}}
+        ]
+        
+        operators = self.registros.aggregate(pipeline)
+        # Retornar diccionario {nombre: código}
+        return {op["_id"]: op["codigo"] for op in operators if op["_id"]}
