@@ -17,6 +17,7 @@ def create_dashboard_view(page: ft.Page, db: DatabaseManager, lote_id=None):
     product_txt = ft.Text("N/A", size=14)
     estado_txt = ft.Text("N/A", size=14)
     cant_inicial_txt = ft.Text("0", size=14)
+    medida_txt = ft.Text("Unidades", size=14)
     cant_restante_txt = ft.Text("0", size=14)
     proveedor_txt = ft.Text("N/A", size=14)
     operador_txt = ft.Text("N/A", size=14)
@@ -53,6 +54,7 @@ def create_dashboard_view(page: ft.Page, db: DatabaseManager, lote_id=None):
                     ft.Row([ft.Text("Producto:", weight=ft.FontWeight.BOLD), product_txt]),
                     ft.Row([ft.Text("Estado:", weight=ft.FontWeight.BOLD), estado_txt]),
                     ft.Row([ft.Text("Cantidad Inicial:", weight=ft.FontWeight.BOLD), cant_inicial_txt]),
+                    ft.Row([ft.Text("Medida:", weight=ft.FontWeight.BOLD), medida_txt]),
                     ft.Row([ft.Text("Cantidad Restante:", weight=ft.FontWeight.BOLD), cant_restante_txt]),
                     ft.Row([ft.Text("Proveedor:", weight=ft.FontWeight.BOLD), proveedor_txt]),
                     ft.Row([ft.Text("Operador:", weight=ft.FontWeight.BOLD), operador_txt]),

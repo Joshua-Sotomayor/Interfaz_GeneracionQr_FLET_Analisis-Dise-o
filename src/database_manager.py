@@ -2,7 +2,7 @@ import os
 from pymongo import MongoClient, errors
 from pymongo.collection import Collection
 from dotenv import load_dotenv
-from bson import ObjectId # ⭐️ Importante para buscar por _id
+from bson import ObjectId #Importante para buscar por _id
 
 class DatabaseManager:
     """Maneja la conexión y operaciones con MongoDB"""
@@ -57,9 +57,14 @@ class DatabaseManager:
         """Añade un nuevo registro de QR al historial"""
         if self.db is None: return
         
-        # ⭐️ NUEVO ESQUEMA: Añadimos los campos de estado y stock
+        # NUEVO ESQUEMA: Añadimos los campos de estado y stock
         try:
-            cantidad_num = float(record.get("quantity", 0))
+            """
+            #Por el momenot solo nos
+            # interesa extraer el numero poesteriormente y 
+            # Agroamisgo desea se cambia
+            """
+            cantidad_num = float(record.get("quantity", 0).split(" ")[0])
         except ValueError:
             cantidad_num = 0.0
 
